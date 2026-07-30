@@ -95,8 +95,6 @@ void UpdateCombatFeatures() {
     const static uint8_t nops6[6] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
     const static uint8_t nops2[2] = {0x90, 0x90};
 
-    // Respect the global kill switch: if the trainer is panicked off, force
-    // every byte patch back to its original state and skip live writes.
     const bool masterEnable = settings.masterEnable;
     const bool wantAutoBlock = masterEnable && settings.autoBlockMelee;
     const bool wantParry = masterEnable && (settings.alwaysParryOnBlock || settings.perfectParry);
