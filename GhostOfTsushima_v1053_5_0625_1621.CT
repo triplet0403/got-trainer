@@ -1,0 +1,1076 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="45">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>712</ID>
+      <Description>"[Enable  v1053.5.0625.1621]"</Description>
+      <Options moHideChildren="1"/>
+      <Color>0000FF</Color>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+aobscanmodule(aobReadPlayerInstance,$process,48 8B 3D ?? ?? ?? ?? 45 0F 57 C9 48 85 FF 0F 84 F0 00 00 00)
+registersymbol(aobReadPlayerInstance)
+
+label(pPlayer)
+registersymbol(pPlayer)
+
+aobReadPlayerInstance+7+(DWORD)[aobReadPlayerInstance+3]:
+pPlayer:
+
+////////
+
+aobscanmodule(aobCallAddResource,$process,48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 4D 8B CD 88 9C 24 80 00 00 00 44 8B C7)
+registersymbol(aobCallAddResource)
+
+label(pInventory)
+registersymbol(pInventory)
+
+aobCallAddResource+7+(DWORD)[aobCallAddResource+3]:
+pInventory:
+
+///////////////////////////////////
+// Give Gear Scans:
+aobscanmodule(aobGearInstance,$process,48 8D 0D ?? ?? ?? ?? 8B 44 24 4C)
+registersymbol(aobGearInstance)
+
+label(pGear)
+registersymbol(pGear)
+
+aobGearInstance+7+(DWORD)[aobGearInstance+3]:
+pGear:
+///
+aobscanmodule(aobStaticTemplates,$process,48 8B 05 ?? ?? ?? ?? 48 0F BF CA 48 8B 14 C8 48 85 D2)
+registersymbol(aobStaticTemplates)
+
+label(pTemplates)
+registersymbol(pTemplates)
+
+aobStaticTemplates+7+(DWORD)[aobStaticTemplates+3]:
+pTemplates:
+
+///
+
+aobscanmodule(aobCallAddGear,$process,44 89 4C 24 ? 44 89 44 24 ? 48 89 54 24 ? 55)
+registersymbol(aobCallAddGear)
+
+aobscanmodule(aobPermGear,$process,48 8B 15 ?? ?? ?? ?? 44 8B 64 24 44 45 33 C9 41 8B F1 45 85 E4 0F 8E 06 02 00 00)
+registersymbol(aobPermGear)
+
+label(pPermGear)
+registersymbol(pPermGear)
+
+aobPermGear+7+(DWORD)[aobPermGear+3]:
+pPermGear:
+//
+///////////////////////////////////
+
+globalalloc(_Vars,32)
+_Vars:
+dd 0 // ID(Arrows)
+dd #999 // Amount
+dd (float)25 // Free-Cam Speed
+dq 5091342EE71AC35C // Hash For The Gear Give
+dd #10 // pickup mul.
+dd (float)0.02 // fMovementSpeed
+
+ 
+[DISABLE]
+unregistersymbol(*)
+</AssemblerScript>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>713</ID>
+          <Description>"[Scripts]"</Description>
+          <GroupHeader>1</GroupHeader>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>714</ID>
+              <Description>"Free Cam (TILDE HOTKEY)"</Description>
+              <Options moHideChildren="1"/>
+              <Color>FF8000</Color>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>{ Game   : GhostOfTsushima.exe
+  Version: 
+  Date   : 2024-05-18
+  Author : cfe
+
+  This script does blah blah blah
+}
+
+[ENABLE]
+aobscanmodule(aobCamRot,$process,48 8B 05 ?? ?? ?? ?? 0F 57 DB 0F 29 74 24 10 0F 57 F6)
+
+label(pCamRot)
+registersymbol(pCamRot)
+
+aobCamRot+7+(DWORD)[aobCamRot+3]:
+pCamRot:
+
+///////////
+
+aobscanmodule(aobWriteCamPos,GhostOfTsushima.exe,0F 11 81 50 05 00 00 48)
+alloc(newmem2,$1000,aobWriteCamPos)
+
+label(code2)
+label(return2)
+label(pCam)
+registersymbol(pCam)
+label(pCamPos)
+registersymbol(pCamPos)
+newmem2:
+
+code2:
+  push rax
+  mov rax,[rcx]
+  call [rax+18] // get RTTI descriptor
+  mov rdx,1200000011C
+  cmp [rax+8],rdx // our Cam?
+  pop rax
+  jne short @f
+   mov [pCam],rcx
+   cmp [pCamPos],0
+   je short @f
+    // do not block the write to the cam, just feed it the new position
+    // otherwise the engine will get issues
+    movups xmm0,[pCamPos]
+    mov [pCam],rcx
+  @@:
+  movups [rcx+00000550],xmm0
+  jmp return2
+pCam:
+dq 0
+pCamPos:
+dd 0
+dd 0
+dd 0
+dd 0
+
+aobWriteCamPos:
+  jmp newmem2
+  nop 2
+return2:
+registersymbol(aobWriteCamPos)
+
+
+////////
+
+globalalloc(FreeCamThread,$1000,$process)
+
+createthread(FreeCamThread)
+
+label(L_CamLoopInit)
+label(L_CamLoop)
+label(L_End)
+label(bStop)
+registersymbol(bStop)
+
+FreeCamThread:
+sub rsp,28
+L_CamLoopInit:
+  cmp byte ptr[bStop],1
+  je L_End
+  mov rbx,pCam
+  mov rbx,[rbx]
+  test rbx,rbx
+  je L_CamLoopInit
+  mov rsi,pCamRot
+  mov rsi,[rsi]
+  test rsi,rsi
+  je L_CamLoopInit
+  mov rax,pPlayer
+  mov rax,[rax]
+  test rax,rax
+  je L_CamLoopInit
+  mov rdi,_Vars
+  lea rdi,[rdi+8] // NoClip Speed Float
+  L_CamLoop:
+  xorps xmm0,xmm0
+  mov rax,pPlayer
+  mov rax,[rax]
+  // block the movement of the player, without blocking the write
+  // this makes sure that the game never resets the player if it detects something unusual
+  mov [rax+1E0],0 // Vel X
+  mov [rax+1E4],0 // Vel Y
+  ///////////////
+  // prepare the boost multiplier x1 = default speed
+  mov eax,1
+  cvtsi2ss xmm6,eax
+  shufps xmm6,xmm6,0
+  ///////////////
+  mov ecx,10 // VK_SHIFT
+  call USER32.GetAsyncKeyState
+  test eax,eax
+  je short @f
+   // boost multiplier x2
+   addps xmm6,xmm6
+  @@:
+  mov ecx,57 // VK_W
+  call USER32.GetAsyncKeyState
+  test eax,eax
+  je short @f
+    movups xmm0,[rbx+550]
+    movups xmm1,[rsi+100]
+    movss xmm2,[rdi]
+    shufps xmm2,xmm2,0
+    mulps xmm2,xmm6
+    mulps xmm1,xmm2
+    addps xmm0,xmm1
+    mov rax,pCamPos
+    movups [rax],xmm0
+  @@:
+  mov ecx,53 // VK_S
+  call USER32.GetAsyncKeyState
+  test eax,eax
+  je short @f
+    movups xmm0,[rbx+550]
+    movups xmm1,[rsi+100]
+    movss xmm2,[rdi]
+    shufps xmm2,xmm2,0
+    mulps xmm2,xmm6
+    mulps xmm1,xmm2
+    subps xmm0,xmm1
+    mov rax,pCamPos
+    movups [rax],xmm0
+  @@:
+  mov ecx,45 // VK_E
+  call USER32.GetAsyncKeyState
+  test eax,eax
+  je short @f
+   movss xmm0,[rbx+558]
+   addss xmm0,[rdi]
+   mov rax,pCamPos
+   movss [rax+8],xmm0
+  @@:
+  mov ecx,51 // VK_Q
+  call USER32.GetAsyncKeyState
+  test eax,eax
+  je short @f
+   movss xmm0,[rbx+558]
+   subss xmm0,[rdi]
+   mov rax,pCamPos
+   movss [rax+8],xmm0
+  @@:
+  mov ecx,70 // VK_F1 Teleport
+  call USER32.GetAsyncKeyState
+  test eax,eax
+  je short @f
+   movups xmm0,[rbx+550]
+   mov eax,[rbx+55C]
+   mov rcx,pPlayer
+   mov rcx,[rcx]
+   test rcx,rcx
+   je short @f
+    movups [rcx+120],xmm0
+    mov [rbx+12C],eax
+  @@:
+  mov ecx,10
+  call KERNEL32.Sleep
+  cmp byte ptr[bStop],1
+  je short L_End
+  jmp L_CamLoop
+L_End:
+add rsp,28
+ret
+
+align 10 00
+bStop:
+db 0
+
+[DISABLE]
+bStop:
+db 1
+
+aobWriteCamPos:
+  db 0F 11 81 50 05 00 00
+
+dealloc(newmem2)
+
+unregistersymbol(*)
+
+
+
+
+</AssemblerScript>
+              <CheatEntries>
+                <CheatEntry>
+                  <ID>715</ID>
+                  <Description>"Speed"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>Float</VariableType>
+                  <Address>_Vars+8</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>716</ID>
+                  <Description>"F1 = Teleport Player"</Description>
+                  <Color>808080</Color>
+                  <GroupHeader>1</GroupHeader>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>717</ID>
+                  <Description>"W/S = Forward/Backward"</Description>
+                  <Color>808080</Color>
+                  <GroupHeader>1</GroupHeader>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>718</ID>
+                  <Description>"Q/E = Up/Down"</Description>
+                  <Color>808080</Color>
+                  <GroupHeader>1</GroupHeader>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>719</ID>
+                  <Description>"Shift = Boost"</Description>
+                  <Color>808080</Color>
+                  <GroupHeader>1</GroupHeader>
+                </CheatEntry>
+              </CheatEntries>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>953</ID>
+              <Description>"Player Speedhack +x?"</Description>
+              <Options moHideChildren="1"/>
+              <Color>FF8000</Color>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>{ Game   : GhostOfTsushima.exe
+  Version: 
+  Date   : 2024-06-01
+  Author : cfe
+
+  This script does blah blah blah
+}
+
+[ENABLE]
+
+
+aobscanmodule(aobCalcVel,GhostOfTsushima.exe,0F C6 C9 00 0F 58 C2) // should be unique
+alloc(newmem,$1000,aobCalcVel)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+  mov rdi,_Vars
+  addss xmm1,[rdi+18]
+  shufps xmm1,xmm1,00
+  addps xmm0,xmm2
+  jmp return
+
+aobCalcVel:
+  jmp newmem
+  nop 2
+return:
+registersymbol(aobCalcVel)
+
+[DISABLE]
+
+aobCalcVel:
+  db 0F C6 C9 00 0F 58 C2
+
+unregistersymbol(aobCalcVel)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: GhostOfTsushima.exe+C09347
+
+GhostOfTsushima.exe+C09316: 0F C6 C1 00              - shufps xmm0,xmm1,00
+GhostOfTsushima.exe+C0931A: 0F 59 44 24 30           - mulps xmm0,[rsp+30]
+GhostOfTsushima.exe+C0931F: 0F C6 D1 55              - shufps xmm2,xmm1,55
+GhostOfTsushima.exe+C09323: 0F 59 54 24 40           - mulps xmm2,[rsp+40]
+GhostOfTsushima.exe+C09328: 0F C6 C9 AA              - shufps xmm1,xmm1,-56
+GhostOfTsushima.exe+C0932C: 0F 59 4C 24 50           - mulps xmm1,[rsp+50]
+GhostOfTsushima.exe+C09331: 0F 58 D0                 - addps xmm2,xmm0
+GhostOfTsushima.exe+C09334: 0F 28 84 24 B0 00 00 00  - movaps xmm0,[rsp+000000B0]
+GhostOfTsushima.exe+C0933C: 0F 58 D1                 - addps xmm2,xmm1
+GhostOfTsushima.exe+C0933F: F3 0F 10 0D 51 69 87 00  - movss xmm1,[GhostOfTsushima.AmdPowerXpressRequestHighPerformance+5AF4]
+// ---------- INJECTING HERE ----------
+GhostOfTsushima.exe+C09347: 0F C6 C9 00              - shufps xmm1,xmm1,00
+// ---------- DONE INJECTING  ----------
+GhostOfTsushima.exe+C0934B: 0F 58 C2                 - addps xmm0,xmm2
+GhostOfTsushima.exe+C0934E: 0F 59 CA                 - mulps xmm1,xmm2
+GhostOfTsushima.exe+C09351: 0F 29 84 24 B0 00 00 00  - movaps [rsp+000000B0],xmm0
+GhostOfTsushima.exe+C09359: 0F 28 84 24 90 00 00 00  - movaps xmm0,[rsp+00000090]
+GhostOfTsushima.exe+C09361: 0F 58 C1                 - addps xmm0,xmm1
+GhostOfTsushima.exe+C09364: 0F 29 84 24 90 00 00 00  - movaps [rsp+00000090],xmm0
+GhostOfTsushima.exe+C0936C: F3 0F 10 8E 00 01 00 00  - movss xmm1,[rsi+00000100]
+GhostOfTsushima.exe+C09374: 8B FB                    - mov edi,ebx
+GhostOfTsushima.exe+C09376: F3 0F 10 1D BA 98 78 00  - movss xmm3,[GhostOfTsushima.exe+1392C38]
+GhostOfTsushima.exe+C0937E: 83 E7 CF                 - and edi,-31
+}
+</AssemblerScript>
+              <CheatEntries>
+                <CheatEntry>
+                  <ID>954</ID>
+                  <Description>"Speed:"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>Float</VariableType>
+                  <Address>_vars+18</Address>
+                </CheatEntry>
+              </CheatEntries>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>720</ID>
+              <Description>"Infinite Health"</Description>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>{ Game   : GhostOfTsushima.exe
+  Version: 
+  Date   : 2024-05-16
+  Author : cfe
+
+  This script does blah blah blah
+}
+
+[ENABLE]
+
+aobscanmodule(aobWriteHealth,GhostOfTsushima.exe,F3 0F 11 89 74 19 00 00) // should be unique
+alloc(newmem,$1000,aobWriteHealth)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+  mov rax,pPlayer
+  mov rax,[rax]
+  cmp rcx,rax
+  jne short @f
+   movss xmm1,[rcx+1970]
+  @@:
+  movss [rcx+00001974],xmm1
+  jmp return
+
+aobWriteHealth:
+  jmp newmem
+  nop 3
+return:
+registersymbol(aobWriteHealth)
+
+[DISABLE]
+
+aobWriteHealth:
+  db F3 0F 11 89 74 19 00 00
+
+unregistersymbol(aobWriteHealth)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: GhostOfTsushima.exe+68B365
+
+GhostOfTsushima.exe+68B33D: CC                       - int 3 
+GhostOfTsushima.exe+68B33E: CC                       - int 3 
+GhostOfTsushima.exe+68B33F: CC                       - int 3 
+GhostOfTsushima.exe+68B340: 48 89 5C 24 08           - mov [rsp+08],rbx
+GhostOfTsushima.exe+68B345: 57                       - push rdi
+GhostOfTsushima.exe+68B346: 48 81 EC D0 00 00 00     - sub rsp,000000D0
+GhostOfTsushima.exe+68B34D: 48 8B D9                 - mov rbx,rcx
+GhostOfTsushima.exe+68B350: 0F 29 B4 24 C0 00 00 00  - movaps [rsp+000000C0],xmm6
+GhostOfTsushima.exe+68B358: F3 0F 10 B1 74 19 00 00  - movss xmm6,[rcx+00001974]
+GhostOfTsushima.exe+68B360: BA 75 00 00 00           - mov edx,00000075
+// ---------- INJECTING HERE ----------
+GhostOfTsushima.exe+68B365: F3 0F 11 89 74 19 00 00  - movss [rcx+00001974],xmm1
+// ---------- DONE INJECTING  ----------
+GhostOfTsushima.exe+68B36D: 48 8B 89 F8 16 00 00     - mov rcx,[rcx+000016F8]
+GhostOfTsushima.exe+68B374: 0F 2F 8B 70 19 00 00     - comiss xmm1,[rbx+00001970]
+GhostOfTsushima.exe+68B37B: 73 07                    - jae GhostOfTsushima.exe+68B384
+GhostOfTsushima.exe+68B37D: E8 9E 36 43 00           - call GhostOfTsushima.exe+ABEA20
+GhostOfTsushima.exe+68B382: EB 05                    - jmp GhostOfTsushima.exe+68B389
+GhostOfTsushima.exe+68B384: E8 D7 57 43 00           - call GhostOfTsushima.exe+AC0B60
+GhostOfTsushima.exe+68B389: 48 8D 4C 24 30           - lea rcx,[rsp+30]
+GhostOfTsushima.exe+68B38E: E8 8D ED EC FF           - call GhostOfTsushima.exe+55A120
+GhostOfTsushima.exe+68B393: 41 B8 0E 00 00 00        - mov r8d,0000000E
+GhostOfTsushima.exe+68B399: 48 8D 4C 24 30           - lea rcx,[rsp+30]
+}
+</AssemblerScript>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>890</ID>
+              <Description>"Pickup Mul. x?"</Description>
+              <Options moHideChildren="1"/>
+              <Color>FF8000</Color>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>{ Game   : GhostOfTsushima.exe
+  Version: 
+  Date   : 2024-05-21
+  Author : cfe
+
+  This script does blah blah blah
+}
+
+[ENABLE]
+aobscanmodule(aobPickupCall,GhostOfTsushima.exe,44 8B C7 C6 44 24 20 00) // should be unique
+alloc(newmem,$1000,aobPickupCall)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+  mov rax,_Vars
+  mov eax,[rax+14]
+  imul edi,eax
+  mov r8d,edi
+  mov byte ptr [rsp+20],00
+  jmp return
+
+aobPickupCall:
+  jmp newmem
+  nop 3
+return:
+registersymbol(aobPickupCall)
+
+[DISABLE]
+
+aobPickupCall:
+  db 44 8B C7 C6 44 24 20 00
+
+unregistersymbol(aobPickupCall)
+dealloc(newmem)
+
+</AssemblerScript>
+              <CheatEntries>
+                <CheatEntry>
+                  <ID>892</ID>
+                  <Description>"x?"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>_Vars+14</Address>
+                </CheatEntry>
+              </CheatEntries>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>721</ID>
+              <Description>"Stealth"</Description>
+              <Options moHideChildren="1" moDeactivateChildrenAsWell="1"/>
+              <Color>FF8000</Color>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>{ Game   : GhostOfTsushima.exe
+  Version: 
+  Date   : 2024-05-17
+  Author : cfe
+
+  This script does blah blah blah
+}
+
+[ENABLE]
+
+
+aobscanmodule(aobWriteDetection,GhostOfTsushima.exe,F3 0F 11 92 A8 00 00 00) // should be unique
+alloc(newmem,$1000,aobWriteDetection)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+  comiss xmm2,[fOne]
+  je short @f
+   xorps xmm2,xmm2
+  @@:
+  movss [rdx+000000A8],xmm2
+  jmp return
+fOne:
+dd (float)1.0
+
+aobWriteDetection:
+  jmp newmem
+  nop 3
+return:
+registersymbol(aobWriteDetection)
+
+[DISABLE]
+
+aobWriteDetection:
+  db F3 0F 11 92 A8 00 00 00
+
+unregistersymbol(aobWriteDetection)
+dealloc(newmem)
+
+{
+// ORIGINAL CODE - INJECTION POINT: GhostOfTsushima.exe+885F37
+
+GhostOfTsushima.exe+885F04: 48 83 EC 50              - sub rsp,50
+GhostOfTsushima.exe+885F08: 48 8B 05 51 80 0F 01     - mov rax,[GhostOfTsushima.exe+197DF60]
+GhostOfTsushima.exe+885F0F: 48 33 C4                 - xor rax,rsp
+GhostOfTsushima.exe+885F12: 48 89 44 24 30           - mov [rsp+30],rax
+GhostOfTsushima.exe+885F17: F3 0F 5D 15 51 D0 B0 00  - minss xmm2,[GhostOfTsushima.exe+1392F70]
+GhostOfTsushima.exe+885F1F: 41 8B F1                 - mov esi,r9d
+GhostOfTsushima.exe+885F22: 48 8B DA                 - mov rbx,rdx
+GhostOfTsushima.exe+885F25: 48 8B F9                 - mov rdi,rcx
+GhostOfTsushima.exe+885F28: F3 0F 5F 92 A8 00 00 00  - maxss xmm2,[rdx+000000A8]
+GhostOfTsushima.exe+885F30: 0F 2F 15 39 D0 B0 00     - comiss xmm2,[GhostOfTsushima.exe+1392F70]
+// ---------- INJECTING HERE ----------
+GhostOfTsushima.exe+885F37: F3 0F 11 92 A8 00 00 00  - movss [rdx+000000A8],xmm2
+// ---------- DONE INJECTING  ----------
+GhostOfTsushima.exe+885F3F: 0F 82 DB 00 00 00        - jb GhostOfTsushima.exe+886020
+GhostOfTsushima.exe+885F45: 83 BA 80 00 00 00 03     - cmp dword ptr [rdx+00000080],03
+GhostOfTsushima.exe+885F4C: 0F 84 CE 00 00 00        - je GhostOfTsushima.exe+886020
+GhostOfTsushima.exe+885F52: 48 8B 52 70              - mov rdx,[rdx+70]
+GhostOfTsushima.exe+885F56: 48 8B 49 08              - mov rcx,[rcx+08]
+GhostOfTsushima.exe+885F5A: E8 D1 84 DF FF           - call GhostOfTsushima.exe+67E430
+GhostOfTsushima.exe+885F5F: 84 C0                    - test al,al
+GhostOfTsushima.exe+885F61: 0F 84 B9 00 00 00        - je GhostOfTsushima.exe+886020
+GhostOfTsushima.exe+885F67: 44 8B CE                 - mov r9d,esi
+GhostOfTsushima.exe+885F6A: 41 B8 03 00 00 00        - mov r8d,00000003
+}
+</AssemblerScript>
+              <CheatEntries>
+                <CheatEntry>
+                  <ID>722</ID>
+                  <Description>"No Indicator"</Description>
+                  <VariableType>Auto Assembler Script</VariableType>
+                  <AssemblerScript>{ Game   : GhostOfTsushima.exe
+  Version: 
+  Date   : 2024-05-17
+  Author : cfe
+
+  This script does blah blah blah
+}
+
+[ENABLE]
+
+
+aobscanmodule(aobNPCState,GhostOfTsushima.exe,88 8B 98 00 00 00) // should be unique
+
+aobNPCState:
+  nop 6
+
+registersymbol(aobNPCState)
+
+[DISABLE]
+
+aobNPCState:
+  db 88 8B 98 00 00 00
+
+unregistersymbol(aobNPCState)
+
+</AssemblerScript>
+                </CheatEntry>
+              </CheatEntries>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>889</ID>
+              <Description>"Force Perfect Dodge"</Description>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>{ Game   : GhostOfTsushima.exe
+  Version: 
+  Date   : 2024-05-21
+  Author : cfe
+
+  This script does blah blah blah
+}
+
+[ENABLE]
+aobscanmodule(aobCheckEvadeRes,$process,7C A5 83 3F 03 75 6A)
+registersymbol(aobCheckEvadeRes)
+
+aobCheckEvadeRes:
+db 90 90
+aobCheckEvadeRes+5:
+db 90 90
+aobCheckEvadeRes+10:
+db 90 90
+aobCheckEvadeRes+60:
+db 90 90
+aobCheckEvadeRes+65:
+db 90 90
+
+
+
+aobscanmodule(aobCheckFlag,GhostOfTsushima.exe,41 38 74 38 28) // should be unique
+alloc(newmem,$1000,aobCheckFlag)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+ push rax
+  mov rax,pPlayer
+  mov rax,[rax]
+  test rax,rax
+  je short @f
+   lea rax,[rax+4260]
+   cmp rdi,rax
+   jne short @f
+    cmp r8d,2B
+    jne short @f
+     mov sil,1
+  @@:
+  pop rax
+  cmp [r8+rdi+28],sil
+  jmp return
+
+aobCheckFlag:
+  jmp newmem
+return:
+registersymbol(aobCheckFlag)
+
+[DISABLE]
+aobCheckEvadeRes:
+db 7C A5
+aobCheckEvadeRes+5:
+db 75 6A
+aobCheckEvadeRes+10:
+db 74 5F
+aobCheckEvadeRes+60:
+db 75 05
+aobCheckEvadeRes+65:
+db 7C 0A
+
+
+aobCheckFlag:
+  db 41 38 74 38 28
+
+unregistersymbol(*)
+dealloc(newmem)
+
+
+</AssemblerScript>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>723</ID>
+              <Description>"Auto. Block Melee Attacks"</Description>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>{ Game   : GhostOfTsushima.exe
+  Version: 
+  Date   : 2024-05-17
+  Author : cfe
+
+  This script does blah blah blah
+}
+
+[ENABLE]
+
+
+aobscanmodule(aobCheckBlock,GhostOfTsushima.exe,0F 84 DD 01 00 00 8D 56 06 49 8B CF) // should be unique
+
+aobCheckBlock:
+  nop 6
+registersymbol(aobCheckBlock)
+
+[DISABLE]
+
+aobCheckBlock:
+  db 0F 84 DD 01 00 00
+
+unregistersymbol(aobCheckBlock)
+
+</AssemblerScript>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>724</ID>
+              <Description>"Always Parry On Block"</Description>
+              <Options moHideChildren="1" moDeactivateChildrenAsWell="1"/>
+              <Color>FF8000</Color>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>{ Game   : GhostOfTsushima.exe
+  Version: 
+  Date   : 2024-05-17
+  Author : cfe
+
+  This script does blah blah blah
+}
+
+[ENABLE]
+
+aobscanmodule(aobWriteBlockRes,GhostOfTsushima.exe,89 30 48 8B B4 24 98 00 00 00) // should be unique
+
+aobWriteBlockRes:
+  nop 2
+registersymbol(aobWriteBlockRes)
+
+[DISABLE]
+
+aobWriteBlockRes:
+  db 89 30
+
+unregistersymbol(aobWriteBlockRes)
+
+</AssemblerScript>
+              <CheatEntries>
+                <CheatEntry>
+                  <ID>725</ID>
+                  <Description>"Perfect"</Description>
+                  <VariableType>Auto Assembler Script</VariableType>
+                  <AssemblerScript>{ Game   : GhostOfTsushima.exe
+  Version: 
+  Date   : 2024-05-18
+  Author : cfe
+
+  This script does blah blah blah
+}
+
+[ENABLE]
+aobscanmodule(aobPerfectParry,GhostOfTsushima.exe,7D 16 48 BA 0D CC 30 2C 53 75 30 CE 49) // should be unique
+
+aobPerfectParry:
+  db 7C
+
+registersymbol(aobPerfectParry)
+
+[DISABLE]
+
+aobPerfectParry:
+  db 7D
+
+unregistersymbol(aobPerfectParry)
+</AssemblerScript>
+                </CheatEntry>
+              </CheatEntries>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>726</ID>
+              <Description>"Set Resource By ID"</Description>
+              <Color>808000</Color>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>{$lua}
+if syntaxcheck then return end
+
+[ENABLE]
+local aobAddResource = getAddress("aobCallAddResource")
+local FinalOffset = 0xFFFFFFFF00000000
+local Call = aobAddResource+7
+local Offset = readInteger(Call+1)
+FinalOffset = FinalOffset+ Offset
+
+local func = Call + 5 +FinalOffset
+local inv = getAddress("pInventory")
+local vars = getAddress("_Vars")
+local ID = readInteger(vars)
+local Amount = readInteger(vars+4)
+local SomeHash = 0xFBEF564206CD1F52
+local bUnknown = 0
+
+executeCodeEx(0,nil,func,inv,ID,Amount,SomeHash,0)
+
+ 
+ 
+[DISABLE]
+
+</AssemblerScript>
+              <CheatEntries>
+                <CheatEntry>
+                  <ID>727</ID>
+                  <Description>"ID:"</Description>
+                  <DropDownList ReadOnly="1" DescriptionOnly="1" DisplayValueAsItem="1">00000000:Arrow
+00000013:Bamboo
+00000018:Bear Hide
+0000000D:Blackpowder Bomb
+00000019:Boar Hide
+0000001A:Bones
+0000001B:Cloth
+0000001C:Deer Hide
+00000004:Explosive Arrow
+0000001D:Feather
+0000000B:Firecracker
+0000002C:Flowers
+00000001:Flaming Arrow
+0000002F:Ghost Flowers
+0000001E:Gold
+00000020:Green Herb
+00000007:Hallucination Dart
+00000002:Heavy Arrow
+00000016:Iron
+00000012:Incendiary Oil
+0000000F:Kunai
+00000025:Linen
+00000026:Leather
+0000002B:Predator Hides
+00000009:Poison Dart
+00000010:Smoke Bomb
+00000011:Sticky Bomb
+00000022:Silver
+00000027:Silk
+00000021:Senew
+0000001F:Steel
+0000002A:Supplies
+00000023:Talon
+00000017:Toxin
+00000024:Venom Pouch
+0000000C:Windchime
+00000029:Wax Wood
+00000028:Yew Wood
+</DropDownList>
+                  <ShowAsHex>1</ShowAsHex>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>_Vars</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>728</ID>
+                  <Description>"Amount:"</Description>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>4 Bytes</VariableType>
+                  <Address>_Vars+4</Address>
+                </CheatEntry>
+              </CheatEntries>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>912</ID>
+              <Description>"Give Gear By Hash"</Description>
+              <Color>808000</Color>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>{$lua}
+if syntaxcheck then return end
+
+[ENABLE]
+local func = getAddress("aobCallAddGear")
+local ins = getAddress("pGear")
+local perm_gear = getAddress("[pPermGear]")
+local templates = getAddress("[pTemplates]")
+local vars = getAddress("_Vars")
+local hashtoadd = readQword(vars+0xC)
+
+local bTemplateFound = 0
+for i=0,50000 do -- ToDo: find exact size lol
+  local template = readPointer(templates+i*8)
+  local hash = readQword(template)
+  if hashtoadd == hash then
+   bTemplateFound = 1
+   local t = readSmallInteger(template+8)
+   t = t + (t * 2)
+   t = t +t
+   local UnlockID = perm_gear+t*8+0x20
+   local ID = readInteger(UnlockID)
+   ID = bAnd(ID,240)
+   ID = bOr(ID,2)
+   writeInteger(UnlockID,ID)
+   executeCodeEx(0,nil,func,ins,template,1,2,0,0)
+  end
+end
+if (bTemplateFound == 0) then print("Error: Template With That Hash Not Found") return end
+
+
+[DISABLE]
+
+</AssemblerScript>
+              <CheatEntries>
+                <CheatEntry>
+                  <ID>913</ID>
+                  <Description>"Hash:"</Description>
+                  <ShowAsHex>1</ShowAsHex>
+                  <ShowAsSigned>0</ShowAsSigned>
+                  <VariableType>8 Bytes</VariableType>
+                  <Address>_Vars+C</Address>
+                </CheatEntry>
+              </CheatEntries>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>909</ID>
+          <Description>"[Enable While Loading The Save]"</Description>
+          <GroupHeader>1</GroupHeader>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>908</ID>
+              <Description>"Temporary Unlock Gear + Dev Stuff"</Description>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>{ Game   : GhostOfTsushima.exe
+  Version: 
+  Date   : 2024-05-22
+  Author : cfe
+
+  This script does blah blah blah
+}
+
+[ENABLE]
+
+aobscanmodule(aobCheckGearFlags,GhostOfTsushima.exe,39 9C 97 B4 06 00 00) // should be unique
+alloc(newmem,$1000,aobCheckGearFlags)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+   // RDI = "pGear"
+  cmp [rdi+rdx*4+000006B4],ebx
+  jg @f
+   mov [rdi+rdx*4+6B4],1
+  @@:
+  cmp [rdi+rdx*4+000006B4],ebx
+  jmp return
+
+aobCheckGearFlags:
+  jmp newmem
+  nop 2
+return:
+registersymbol(aobCheckGearFlags)
+
+[DISABLE]
+
+aobCheckGearFlags:
+  db 39 9C 97 B4 06 00 00
+
+unregistersymbol(aobCheckGearFlags)
+dealloc(newmem)
+
+</AssemblerScript>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>735</ID>
+          <Description>"[Pointers]"</Description>
+          <GroupHeader>1</GroupHeader>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>736</ID>
+              <Description>"Health"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>pPlayer</Address>
+              <Offsets>
+                <Offset>1974</Offset>
+              </Offsets>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>737</ID>
+              <Description>"Max Health"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>pPlayer</Address>
+              <Offsets>
+                <Offset>1970</Offset>
+              </Offsets>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>738</ID>
+              <Description>"Resolve"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>Float</VariableType>
+              <Address>pPlayer</Address>
+              <Offsets>
+                <Offset>43A4</Offset>
+              </Offsets>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>891</ID>
+              <Description>"Technique Points"</Description>
+              <ShowAsSigned>0</ShowAsSigned>
+              <VariableType>4 Bytes</VariableType>
+              <Address>pGear+2*4+CB4</Address>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols>
+    <SymbolEntry>
+      <Name>_Vars</Name>
+      <Address>2D5AB9D0000</Address>
+    </SymbolEntry>
+    <SymbolEntry>
+      <Name>FreeCamThread</Name>
+      <Address>2D5AB9D0020</Address>
+    </SymbolEntry>
+  </UserdefinedSymbols>
+</CheatTable>

@@ -1,0 +1,1 @@
+ "_deps/minhook-build/minhook.a" -ld3d11 -ld3d12 -ldxgi -ld3dcompiler -ldwmapi -luser32 -lPsapi -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 

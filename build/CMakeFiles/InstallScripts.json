@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"D:/GOT/build/cmake_install.cmake",
+		"D:/GOT/build/_deps/minhook-build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

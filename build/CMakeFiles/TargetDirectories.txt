@@ -1,0 +1,14 @@
+D:/GOT/build/CMakeFiles/version.dir
+D:/GOT/build/CMakeFiles/edit_cache.dir
+D:/GOT/build/CMakeFiles/rebuild_cache.dir
+D:/GOT/build/CMakeFiles/list_install_components.dir
+D:/GOT/build/CMakeFiles/install.dir
+D:/GOT/build/CMakeFiles/install/local.dir
+D:/GOT/build/CMakeFiles/install/strip.dir
+D:/GOT/build/_deps/minhook-build/CMakeFiles/minhook.dir
+D:/GOT/build/_deps/minhook-build/CMakeFiles/edit_cache.dir
+D:/GOT/build/_deps/minhook-build/CMakeFiles/rebuild_cache.dir
+D:/GOT/build/_deps/minhook-build/CMakeFiles/list_install_components.dir
+D:/GOT/build/_deps/minhook-build/CMakeFiles/install.dir
+D:/GOT/build/_deps/minhook-build/CMakeFiles/install/local.dir
+D:/GOT/build/_deps/minhook-build/CMakeFiles/install/strip.dir
