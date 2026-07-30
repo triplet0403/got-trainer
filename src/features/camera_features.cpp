@@ -56,8 +56,7 @@ void UpdateCameraFeatures() {
         speed *= 3.0f;
     }
 
-    // I/K = Forward/Back, J/L = Left/Right, U/O = Up/Down
-    // Also support Numpad keys 8/2/4/6/9/3
+
     if ((GetAsyncKeyState('I') & 0x8000) || (GetAsyncKeyState(VK_NUMPAD8) & 0x8000)) pCamPos[1] += speed;
     if ((GetAsyncKeyState('K') & 0x8000) || (GetAsyncKeyState(VK_NUMPAD2) & 0x8000)) pCamPos[1] -= speed;
     if ((GetAsyncKeyState('J') & 0x8000) || (GetAsyncKeyState(VK_NUMPAD4) & 0x8000)) pCamPos[0] -= speed;
@@ -65,9 +64,7 @@ void UpdateCameraFeatures() {
     if ((GetAsyncKeyState('U') & 0x8000) || (GetAsyncKeyState(VK_NUMPAD9) & 0x8000)) pCamPos[2] += speed;
     if ((GetAsyncKeyState('O') & 0x8000) || (GetAsyncKeyState(VK_NUMPAD3) & 0x8000)) pCamPos[2] -= speed;
 
-    // F3 = Teleport player to the current free-cam position. Kept separate
-    // from F1/F2 (save/load position, handled in player_features.cpp) so
-    // the two teleport systems never collide.
+
     if (GetAsyncKeyState(VK_F3) & 1) {
         const uintptr_t pPlayerGlobal = GetGamePointers().playerInstance;
         if (pPlayerGlobal && !IsBadReadPtr(reinterpret_cast<void*>(pPlayerGlobal), sizeof(uintptr_t))) {
