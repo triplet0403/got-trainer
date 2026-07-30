@@ -54,8 +54,6 @@ void UpdatePlayerFeatures() {
         }
     }
 
-    // 2. Infinite Resolve (kept separate from health so players can choose
-    //    to keep resolve-management gameplay while going invincible, or
     //    vice versa).
     if (settings.infiniteResolve) {
         if (!IsBadReadPtr(pResolve, sizeof(float))) {
@@ -63,8 +61,7 @@ void UpdatePlayerFeatures() {
         }
     }
 
-    // 3. One-shot instant fill actions, requested from the UI and consumed
-    //    here so they only apply once instead of every frame.
+    //    here .
     if (actions.fillHealth) {
         if (!IsBadReadPtr(pMaxHealth, sizeof(float)) && !IsBadReadPtr(pHealth, sizeof(float)) && *pMaxHealth > 0.0f) {
             *pHealth = *pMaxHealth;
@@ -80,7 +77,7 @@ void UpdatePlayerFeatures() {
         actions.fillResolve = false;
     }
 
-    // 4. F1 / F2 Teleport System
+
     // F1 = Save Position
     if (GetAsyncKeyState(VK_F1) & 1) {
         float* pPos = reinterpret_cast<float*>(pPlayer + Offsets::PlayerPositionW);
