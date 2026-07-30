@@ -34,7 +34,7 @@ void UpdateMovementFeatures() {
         return;
     }
 
-    // Safely adjust speed multiplier at velocity scale offset (0x1E0)
+    // 0x1E0
     float* pSpeedMult = reinterpret_cast<float*>(pPlayer + Offsets::PlayerVelocityX);
     if (!IsBadReadPtr(pSpeedMult, sizeof(float))) {
         const float targetSpeed = 1.0f + (vars.movementSpeedBonus * 10.0f);
